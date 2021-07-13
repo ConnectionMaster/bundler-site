@@ -240,7 +240,7 @@ instructions in this guide for upgrading Ruby as well.
 
 **Step 1: Get the new trust certificate**
 
-Download the `.pem` file from this link: [GlobalSignRootCA.pem](https://raw.githubusercontent.com/rubygems/rubygems/master/lib/rubygems/ssl_certs/index.rubygems.org/GlobalSignRootCA.pem)
+Download the `.pem` file from this link: [GlobalSignRootCA.pem](https://raw.githubusercontent.com/rubygems/rubygems/master/lib/rubygems/ssl_certs/rubygems.org/GlobalSignRootCA_R3.pem)
 
 Then, find the downloaded file, and check to make sure the filename ends in `.pem`.
 (*Note*: Some browsers will change the extension to `.txt`, which will prevent this from working.
@@ -287,8 +287,9 @@ A Finder window will open showing the directory that RubyGems is installed into.
 
 **Step 3: Copy new trust certificate**
 
-In the window, open the `ssl_certs` directory and drag your `.pem`
-file into it. It will be listed with other files like `AddTrustExternalCARoot.pem`.
+In the window, open the `ssl_certs` directory. Find other `.pem` files like
+`AddTrustExternalCARoot.pem` (may be located in subdirectories like `rubygems.org`)
+and drag your file beside them.
 
 Once you’ve done this, it should be possible to follow the directions at the very top to
 automatically update RubyGems. Visit the [Update RubyGems][update-rubygems] section for
