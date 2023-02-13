@@ -20,7 +20,7 @@ gem "octokit", "~> 5.2"
 ## To generate ERB files from ronn files from rubygems/rubygems
 gem "ronn"
 ## To strip (man:strip_pages)
-gem "nokogiri", "~> 1.13"
+gem "nokogiri", "~> 1.14"
 
 group :development do
   gem "pry"
