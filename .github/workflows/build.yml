@@ -8,18 +8,17 @@ jobs:
   build:
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: '3.1.2'
           bundler-cache: true # 'bundle install' and cache
 
       - name: Install Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: 16
+          node-version: 18
           cache: npm
 
       - name: Install dependencies
@@ -29,3 +28,4 @@ jobs:
         run: bundle exec rake build
         env:
           NO_CONTRACTS: "true"
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -8,12 +8,14 @@ require "pathname"
 # [Heroku support](http://www.heroku.com/support)
 RELATIVE_LINK_REGEX = %r{
   \[(?<title>.*)\]            # Match title
-  \((?<link>[^(http)].*?)\)   # Match all non-http links
+  \((?<link>(?!http).*?)\)    # Match all non-http links
 }x
 
 def new_link(file, link)
   if link.end_with?("CODE_OF_CONDUCT.md")
     "conduct" # Special case we manually write
+  elsif link.end_with?("CHANGELOG.md")
+    "changelog" # Special case we manually write
   elsif link.start_with?("mailto:") || link.start_with?("http")
     link
   else
@@ -26,12 +28,17 @@ def new_link(file, link)
   end
 end
 
-def write_file(file, to)
+def write_file(file, to, title: nil)
   content = File.read(file)
+
+  file = file.sub("doc/bundler/", "doc/").downcase
+  to = to.sub("doc/bundler/", "doc/").downcase
+
   content.gsub!(RELATIVE_LINK_REGEX) do |match_data|
-    new_link = new_link(file.downcase, Regexp.last_match[:link].downcase)
+    new_link = new_link(file, Regexp.last_match[:link].downcase)
     "[#{Regexp.last_match[:title]}](#{new_link})"
   end
+  content.prepend("---\ntitle: #{title}\n---\n\n") if title
 
   FileUtils.mkpath(File.dirname(to))
   File.write(to, content)
@@ -39,7 +46,7 @@ end
 
 directory "vendor"
 directory "vendor/bundler" => ["vendor"] do
-  system "git clone --depth 1 --no-single-branch https://github.com/bundler/bundler.git vendor/bundler"
+  system "git clone --depth 1 --no-single-branch https://github.com/rubygems/bundler.git vendor/bundler"
 end
 
 directory "vendor/rubygems" => ["vendor"] do
@@ -53,17 +60,18 @@ end
 
 desc "Pulls in pages maintained in the bundler repo."
 task repo_pages: :update_vendor do
-  Dir.chdir "vendor/rubygems/bundler" do
+  Dir.chdir "vendor/rubygems" do
     sh "git reset --hard HEAD"
     sh "git checkout origin/master"
 
     source_dir = File.expand_path("../source/", File.dirname(__dir__))
-    Dir["doc/**/*.md"].each do |file|
+    Dir["doc/bundler/**/*.md"].each do |file|
       file_name = file[0..-4] # Removes .md suffix
-      to = File.expand_path("./#{file_name}.html.md", source_dir).downcase
+      to = File.expand_path("./#{file_name}.html.md", source_dir)
       write_file(file, to)
     end
 
-    write_file("../CODE_OF_CONDUCT.md", File.expand_path("./conduct.html.md", source_dir))
+    write_file("CODE_OF_CONDUCT.md", File.expand_path("./conduct.html.md", source_dir), title: "RubyGems and Bundler Code of Conduct")
+    write_file("CHANGELOG.md", File.expand_path("./changelog.html.md", source_dir), title: "ChangeLog")
   end
 end

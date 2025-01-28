@@ -8,9 +8,13 @@
     %meta{ name: "globalsign-domain-verification", content: "276VSYOko8B8vIu1i8i5qbj7_ql5PXo0dU69XQy-SL" }
     %title
       - page_title = current_page.data.title
-      = "Bundler: #{ page_title || "The best way to manage a Ruby application's gems" }"
+      Bundler: #{page_title || "The best way to manage a Ruby application's gems"}
 
     = yield_content :head
+
+    - site_url = %w[es pl].include?(I18n.locale) ? "https://bundler.io/#{I18n.locale}/" : "https://bundler.io/"
+
+    %link{ rel: 'alternate', href: site_url, hreflang: I18n.locale }
 
     - if content_for?(:canonical)
       %link{ rel: "canonical", href: yield_content(:canonical) }
@@ -25,8 +29,6 @@
     = partial 'layouts/navbar'
 
     ~ yield
-
-    = yield_content :tail
 
     .footer
       = partial 'layouts/footer'

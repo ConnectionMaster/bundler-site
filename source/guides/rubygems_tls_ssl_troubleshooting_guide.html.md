@@ -148,7 +148,7 @@ users all around the world download gems really quickly.
 
 Last year, Fastly announced it will deprecate TLS versions 1.0 and 1.1 due to a mandate
 published by the PCI Security Standard Council.
-([Read more about this in Fastly’s blog post.](https://www.fastly.com/blog/phase-two-our-tls-10-and-11-deprecation-plan))
+([Read more about this in Fastly’s blog post.](https://www.fastly.com/blog/update-our-tls-10-and-11-deprecation-plan))
 
 As a result, RubyGems.org will require TLSv1.2 at minimum starting January 2018. This means
 RubyGems.org and the `gem` command will no longer support versions of Ruby and OpenSSL that are
@@ -431,7 +431,7 @@ If none of these instructions fixed the problem, the next step is to open an iss
 
 (Create an issue in the [RubyGems issue tracker](https://github.com/rubygems/rubygems/issues)
 if your error came from `gem install`. If it came from `bundle install`, create an issue in
-the [Bundler issue tracker](https://github.com/bundler/bundler).)
+the [Bundler issue tracker](https://github.com/rubygems/rubygems/issues/new?labels=Bundler&template=bundler-related-issue.md).)
 
 Please include:
 
@@ -445,4 +445,4 @@ Please include:
 ### Contributing to this guide
 [contributing-to-guide]: #contributing-to-this-guide
 
-If you found a solution not listed here, submit a PR to add your solution to [this guide](https://github.com/rubygems/bundler-site/blob/master/source/v1.16/guides/rubygems_tls_ssl_troubleshooting_guide.html.md)!
+If you found a solution not listed here, submit a PR to add your solution to [this guide](https://github.com/rubygems/bundler-site/blob/master/source/guides/rubygems_tls_ssl_troubleshooting_guide.html.md)!

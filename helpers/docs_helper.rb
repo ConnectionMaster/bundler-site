@@ -1,5 +1,7 @@
 module DocsHelper
-  ADDITIONAL_PAGES = %w(bundle.1 gemfile.5).freeze
+  def additional_pages
+    %w(bundle.1 gemfile.5).freeze
+  end
 
   def documentation_path(page, version=nil)
     check_single_page("/man/#{page}.html", version) || check_single_page("/#{page}.html", version) ||
@@ -11,33 +13,28 @@ module DocsHelper
   end
 
   def link_to_editable_version
-    editable = true
     path = current_page.file_descriptor.relative_path.to_s
-    repo =
-      if path.start_with?("doc/")
-        path = "bundler/#{path}"
-        "rubygems/rubygems"
-      elsif %r{\A(?<version>v\d+\.\d+)/man/(?<filename>(bundle[_-]|gemfile)[^/]*)\.html} =~ path
-        if version == current_version
-          path = "bundler/lib/bundler/man/#{filename}.ronn"
-        else
-          editable = false
-        end
-        "rubygems/rubygems"
+    if path.start_with?("doc/")
+      path.delete_prefix!("doc/")
+      path.prepend("doc/bundler/")
+      dirname = File.dirname(path)
+      basename = File.basename(path, ".html.md").upcase
+      path = File.join(dirname, "#{basename}.md")
+      link_to_source("rubygems/rubygems", path)
+    elsif %r{\Aman/(?<filename>(bundle[_-]|gemfile)[^/]*)\.html} =~ path
+      path = "bundler/lib/bundler/man/#{filename}.ronn"
+      link_to_source("rubygems/rubygems", path)
+    elsif %r{\A(?<version>v\d+\.\d+)/man/(?<filename>(bundle[_-]|gemfile)[^/]*)\.html} =~ path
+      if version == current_version
+        path = "bundler/lib/bundler/man/#{filename}.ronn"
+        link_to_source("rubygems/rubygems", path)
       else
-        path = File.join "source", path
-        "rubygems/bundler-site"
+        path = path.sub(version, current_version)
+        link_to_latest(path)
       end
-
-    if editable
-      url = "https://github.com/#{repo}/blob/master/#{path}"
-      link_to("Edit this document on GitHub", url) +
-        " if you caught an error or noticed something was missing."
     else
-      url = "/" + path.sub(version, current_version).sub(/\.html.*/, ".html")
-      "This document is obsolete. " +
-        link_to("See the latest version of this document", url) +
-        " if you caught an error or noticed something was missing, it may be fixed there."
+      path = File.join "source", path
+      link_to_source("rubygems/bundler-site", path)
     end
   end
 
@@ -50,13 +47,8 @@ module DocsHelper
 
     current_man_pages = sitemap.resources.select{ |page| page.path.start_with?("#{version}/man/bundle-") }
     commands_from_man = current_man_pages.map{ |page| strip_man_path_to_page(page.path) } # ex: bundle-config.1
-    comparable_commands_from_man = commands_from_man.map{ |page| normalize_man_page(page) } # ex: bundle_config
 
-    current_other_pages = sitemap.resources.select{ |page| page.path.start_with?("#{version}/bundle_") }
-    commands_from_others = current_other_pages.map{ |page| page.path[(version.length + 1)..-6] } # ex: bundle_console
-    commands_from_others -= comparable_commands_from_man
-
-    (commands_from_man + commands_from_others - primary_commands + ADDITIONAL_PAGES).sort do |x,y|
+    (commands_from_man - primary_commands + additional_pages).sort do |x,y|
       normalize_man_page(x) <=> normalize_man_page(y)
     end
   end
@@ -75,6 +67,19 @@ module DocsHelper
   end
 
   private
+
+  def link_to_source(repo, path)
+    url = "https://github.com/#{repo}/blob/master/#{path}"
+    link_to("Edit this document on GitHub", url) +
+      " if you caught an error or noticed something was missing."
+  end
+
+  def link_to_latest(path)
+    url = "/" + path.sub(/\.html.*/, ".html")
+    "This document is obsolete. " +
+      link_to("See the latest version of this document", url) +
+      " if you caught an error or noticed something was missing, it may be fixed there."
+  end
 
   def strip_version_from_url(url)
     url.scan(/v\d\.\d+\/(.*).html/)&.first&.first || url
